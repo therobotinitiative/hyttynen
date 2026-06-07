@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  hyttynen:
+    build: .
+    ports:
+      - "1000:80"
+    restart: unless-stopped
+  mqtt:
+    image: eclipse-mosquitto:latest
+    container_name: moon-mqtt
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mqtt/config:/mosquitto/config
+      - ./mqtt/data:/mosquitto/data
+      - ./mqtt/logs:/mosquitto/logs
+    restart: always
