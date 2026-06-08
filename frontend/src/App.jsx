@@ -27,9 +27,7 @@ export default function App() {
 
   useEffect(() => {
     function connect() {
-      const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wspath = `ws://localhost:1000/codebreaker/hyttynen/ws`;
-      //const ws = new WebSocket(`${proto}//${window.location.host}:1000/codebreaker/hyttynen/ws`);
+      const wspath = `ws://hyttynen/codebreaker/hyttynen/ws`;
       const ws = new WebSocket(wspath);
       wsRef.current = ws;
 
