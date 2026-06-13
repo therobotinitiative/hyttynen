@@ -1,0 +1,21 @@
+# Package Dependencies
+node_modules/
+npm-debug.log
+
+# Build Outputs (Prevents local builds from bleeding into Docker context)
+dist/
+build/
+.cache/
+
+# Git metadata (Docker doesn't need version history to run the app)
+.git/
+.gitignore
+
+# Environment Secrets (CRITICAL for security)
+.env
+.env.local
+.env.*.local
+
+# Operating System Junk
+.DS_Store
+Thumbs.db

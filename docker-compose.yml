@@ -1,18 +1,31 @@
-version: '3.8'
-
 services:
-  hyttynen:
-    build: .
-    ports:
-      - "1000:80"
-    restart: unless-stopped
   mqtt:
     image: eclipse-mosquitto:latest
-    container_name: moon-mqtt
+    container_name: hyttynen-mqtt
     ports:
       - "1883:1883"
     volumes:
       - ./mqtt/config:/mosquitto/config
       - ./mqtt/data:/mosquitto/data
       - ./mqtt/logs:/mosquitto/logs
+    restart: always
+  backend:
+    container_name: hyttynen-backend
+    build:
+      context: ./server/
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mqtt
+    restart: always
+  frontend:
+    container_name: hyttynen-frontend
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile
+    ports:
+      - "1000:5173"
+    depends_on:
+      - backend
     restart: always

@@ -79,6 +79,16 @@ body {
   font-size: 0.78rem;
 }
 
+.last-update-2 {
+  color: #3a6046;
+  font-size: 0.78rem;
+}
+
+.null-background {
+  color: #a30000;
+  font-size: 0.78rem;
+}
+
 /* Waiting */
 .waiting {
   display: flex;

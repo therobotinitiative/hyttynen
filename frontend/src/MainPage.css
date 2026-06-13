@@ -1,0 +1,13 @@
+a, a.visited {
+    color: white;
+    text-decoration: none;
+}
+
+.list-row {
+    color: white;
+}
+
+.list-row:hover {
+    background-color: white;
+    color: black;
+}
