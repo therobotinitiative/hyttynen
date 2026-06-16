@@ -1,7 +1,7 @@
 const WebSocket = require('ws');
 const mqtt = require('mqtt');
 
-const MQTT_URL="mqtt://mqtt:1883";
+const MQTT_URL="mqtt://localhost:1883";
 const MQTT_TOPIC="hwinfo";
 
 let activeClients = new Set();
