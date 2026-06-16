@@ -3,7 +3,7 @@ const app = express();
 const http = require('http');
 
 // Web Sockets
-const machines = require('./ws/codebreaker/machines');
+const device = require('./ws/codebreaker/devices');
 const hwInfo = require('./ws/codebreaker/hwinfo');
 
 console.log('========================-- -- -');
@@ -16,20 +16,23 @@ const server = http.createServer(app);
 const webSocketEndPoints = new Array();
 
 // Initialize web sockets
-webSocketEndPoints.push(machines.machines());
+webSocketEndPoints.push(device.devices());
 webSocketEndPoints.push(hwInfo.hwinfo());
 
 console.log('Handle upgrade event');
 // handle 'upgrade' message, multiplex web sockets.
 server.on('upgrade', (request, socket, head) => {
-    const { pathname } = new URL(request.url, `http://${request.headers.host}`);
+    let { pathname } = new URL(request.url, `http://${request.headers.host}`);
+    if (pathname.endsWith('/') && pathname.length > 1) {
+        pathname = pathname.slice(0, -1);
+    }
     for (const wse of webSocketEndPoints) {
         if (wse && pathname === wse.path) {
             wse.socket.handleUpgrade(request, socket, head, (ws) => {
                 wse.socket.emit('connection', ws, request);
             });
             
-            // CRITICAL: Stop iterating immediately once the socket is claimed!
+            // Stop iterating immediately once the socket is claimed!
             break; 
         }
     }
