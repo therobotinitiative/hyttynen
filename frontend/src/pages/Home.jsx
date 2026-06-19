@@ -1,37 +1,36 @@
 import { useState, useEffect, useRef } from 'react';
 import '../App.css';
 import '../MainPage.css';
+import { useHyttynen } from '../context/HyttynenProvider';
 
-function StatusDot({ connected }) {
-  return <span className={`status-dot ${connected ? 'connected' : 'disconnected'}`} />;
+function StatusDot({ connected: connectionStatus }) {
+  return <span className={`status-dot ${connectionStatus}`} />;
 }
 
 export default function Home() {
   const [devices, setDevices]= useState(null);
-  const [connected, setConnected] = useState(false);
-  const wsRef = useRef(null);
+  const { connectionState, openHyttynen, closeHyttynen, addListener, removeListener } = useHyttynen();
 
-   useEffect(() => {
-    function connect() {
-      const webSocketPath = `ws://localhost:5000/codebreaker/devices`;
-      const webSocket = new WebSocket(webSocketPath);
-      wsRef.current = webSocket;
-
-      webSocket.onopen = () => setConnected(true);
-      webSocket.onclose = () => {
-        setConnected(false);
-        setTimeout(connect, 3000);
-      };
-      webSocket.onerror = () => webSocket.close();
-      webSocket.onmessage = (e) => {
-        try {
-            setDevices(JSON.parse(e.data));
-        } catch {}
-      };
+  const uiCompoonentsListener = (message) => {
+    console.log('UI Components message');
+    const uic = JSON.parse(message);
+    if(uic.type=='devices') {
+      setDevices(uic.deviceList);
     }
-    connect();
-    return () => wsRef.current?.close();
-  }, []);
+    
+  }
+
+  const openConnection = () => {
+    openHyttynen();
+    addListener(uiCompoonentsListener);
+  }
+
+  const closeConnection = () => {
+    closeHyttynen();
+
+    setDevices(null);
+    removeListener(uiCompoonentsListener);
+  }
 
  return (
     <div className="app">
@@ -40,12 +39,18 @@ export default function Home() {
           <h1>Hyttynen</h1>
         </div>
         <div className="header-right">
-          <StatusDot connected={connected} />
-          <span className="conn-label">{connected ? 'Live' : 'Offline'}</span>
+          <StatusDot connected={connectionState()} />
+          <span className="conn-label">{connectionState()}</span>
         </div>
       </header>
 
       <main>
+        <button onClick={ openConnection }>
+          Connect
+        </button>
+        <button onClick={ closeConnection }>
+          Close
+        </button>
         Devices:<br />
         <ul>
           {devices?.map((device) => (

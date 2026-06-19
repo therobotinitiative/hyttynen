@@ -19,3 +19,9 @@ Other parts of the ecosystem:
 1. Fanttimoon - Postgres database container
 2. Puppumoon - Helper for generating rando data
 3. Redismoon - Redis cache container
+## WebSocket
+When connecting to server initiated little hand shake.
+Server sends "hs" on connection.
+Expecting client reply "hytcli".
+If the nandshake goes fine server will reply "hytser".
+If connection stays open server sends items from firstToSend.

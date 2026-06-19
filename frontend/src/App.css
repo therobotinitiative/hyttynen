@@ -61,17 +61,24 @@ body {
   flex-shrink: 0;
 }
 
-.status-dot.connected {
+.status-dot.live {
   background: #00d084;
-  box-shadow: 0 0 8px #00d08488;
+  box-shadow: 0 0 8px #d0a30088;
 }
 
-.status-dot.disconnected {
-  background: #ff4757;
+.status-dot.handshake {
+  background: #e5ff00;
+  box-shadow: 0 0 8px #ffe60088;
+}
+
+.status-dot.offline {
+  background: #ff0015;
 }
 
 .conn-label {
-  color: #a0aec0;
+  color: white;
+  font-weight: bold;
+  font-size: 1.5em;
 }
 
 .last-update {
