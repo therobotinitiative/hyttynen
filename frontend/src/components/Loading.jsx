@@ -1,8 +1,8 @@
-const Loading = () => {
+const Loading = ({deviceName = "data"}) => {
     return (
        <div className="waiting">
           <div className="spinner" />
-          <p>Waiting for data...</p>
+          <p>Waiting for data from {deviceName}</p>
         </div>
      );
 }

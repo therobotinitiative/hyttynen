@@ -11,3 +11,17 @@ export function Bar({ percent, color }) {
     </div>
   );
 }
+
+export function getWebSocketMessage(message) {
+  console.log('[getWebSocketMessage] invoked');
+
+  let rawData = message.data;
+  // "Decode" data
+  if(message.data instanceof Blob) {
+      rawData = async () => { await message.data.text(); }
+  } else if (message.data instanceof ArrayBuffer) {
+      rawData = new TextDecoder('utf-8').decode(message.data);
+  }
+  
+  return rawData;
+}

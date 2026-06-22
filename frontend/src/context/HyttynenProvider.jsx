@@ -1,4 +1,5 @@
-import { createContext, useContext, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useRef, useState } from "react";
+import { getWebSocketMessage } from "../utils/HelperUtils";
 
 const HyttynenContext = createContext();
 
@@ -6,73 +7,81 @@ export const HyttynenProvider = ({ children }) => {
     const [connectedState, setConnectedState] = useState('offline');
     const webSocketConnection = useRef(null);
     const messageHandler = useRef(null);
-    const waiting = useRef('hs');
+    const established = useRef(null);
 
-    const listeners = new Set();
+    /**
+     * Registered listener functions.
+     */
+    const registeredListeners = new Map();
 
-    const messageHandler1 = (message) => {
-        const msg = message.data;
-        for(const listener of listeners) {
-            console.log('Notifying listener');
-            listener(msg);
-        }
+    const messageHandlerAfterHandshake = (message) => {
+        let rawData = getWebSocketMessage(message);
+
+        console.log('[HyttnenProvider:: messageHandler] '+rawData);
         
-    }
-
-    const handshake = (message) => {
-        const msg = message.data;
-
-        if(msg == waiting.current) {
-            console.log('[hs] Received '+msg+' message');
-            if(webSocketConnection.current) {
-                if(msg == 'hs') {
-                    webSocketConnection.current.send('hytcli');
-                    waiting.current='hytser';
-                } else if (msg == 'hytser') {
-                    setConnectedState('live');
-                    messageHandler.current=messageHandler1;
-                    webSocketConnection.current.onmessage = messageHandler.current;
-                }
+        // if connection not yet established waiting for 'hytser'
+        if(!established.current) {
+            if(rawData=="hytser") {
+                console.log('[HyttynenProvider::messageHandler] Connection established, hytser');
+                established.current=true;
             }
         }
         else {
-            console.log('[hs] Expecting ' + waiting.current + ', received '+msg+', closing');
+            // Parse json
+            let jsonMessage = "na"
+            try { jsonMessage = JSON.parse(rawData); } catch(err) {console.log(err);}
+            console.log('[HyttynenProvider::messageHandler] Parsed JSON, messageType: '+jsonMessage.messageType);
             
-            if(webSocketConnection.current) {
-                webSocketConnection.current.close();
+            // Notify registered listeners
+            const rl = registeredListeners.get(jsonMessage.messageType);
+            if (rl) {
+                console.log('[HyttynenProvider::messageHandler] Notifying registered listeners '+rl.size+' to message['+jsonMessage.messageType+']');
+                
+                for (const listener of rl) {
+                    listener(jsonMessage);
+                }
+            }
+            else {
+                console.log('no reg');
+                
             }
         }
-    }
+    };
 
     const connectionState = () => {
         return connectedState;
     }
 
+    /**
+     * Open connection to server.
+     */
     const openHyttynen = () => {
-        console.log('checking connection');
+        console.log('[HyttynenContext::openHyttynen] checking connection');
                 
         if(!webSocketConnection.current) {
-            console.log('connection not open, establishing');
+            console.log('[HyttynenContext::openHyttynen] connection not open, establishing');
             
             const ws = new WebSocket('ws://localhost:8088');
+            // Handle connection opening
             ws.onopen = () => {
-                console.log('Open connection to Hyttynen');
+                console.log('[HyttynenProvider::openHyttynen] Open connection to Hyttynen');
                 // Store socket
-                waiting.current = 'hs';
                 webSocketConnection.current = ws;
+                ws.send('hytcli');
 
-                setConnectedState('handshake');
-            }
+                // Waiting for handshake
+                console.log('[HyttynenProvider::openHyttynen] hytcli sent, waiting for hytser');
+                
+                // Set the message handler
+                ws.onmessage = messageHandlerAfterHandshake;
+                setConnectedState('live');
+            };
 
             ws.onclose = () => {
                 console.log('Hyttynen closed');
                 setConnectedState('offline');
                 webSocketConnection.current = null;
-            }
-
-            // Waiting for handshake
-            messageHandler.current=handshake;
-            ws.onmessage = messageHandler.current;
+            };
         }
     }
 
@@ -83,16 +92,30 @@ export const HyttynenProvider = ({ children }) => {
         }
     }
 
-    const addListener = (listener) => {
+    const register = (messageType, listener) => {
+        console.log('[HyttynenContext::register] register to '+messageType);
+        let listeners = registeredListeners.get(messageType);
+        if (!listeners) {
+            listeners = new Set();
+        }
         listeners.add(listener);
+        registeredListeners.set(messageType, listeners);
     }
 
-    const removeListener = (listener) => {
-        listeners.delete(listener);
+    const unregister = (messageType, listener) => {
+        console.log('[HyttynenContext] unregister to '+messageType);
+        
+        if(webSocketConnection.current) {
+            const unreg = {
+                messageType: "unregister",
+                messageId: messageType
+            };
+            webSocketConnection.current.send(JSON.stringify(unreg));
+        }
     }
 
     return (
-        <HyttynenContext.Provider value={{ connectionState, openHyttynen, closeHyttynen, addListener, removeListener }}>
+        <HyttynenContext.Provider value={{ connectionState, openHyttynen, closeHyttynen, register, unregister }}>
             {children}
         </HyttynenContext.Provider>
     );

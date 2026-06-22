@@ -3,9 +3,9 @@ const app = express();
 const http = require('http');
 
 // Web Sockets
-const device = require('./ws/codebreaker/devices');
-const hwInfo = require('./ws/codebreaker/hwinfo');
-const hyttynen = require('./ws/codebreaker/hyttynen');
+const HyttynenServer = require('./ws/codebreaker/HyttynenServer');
+const HWInfoServer = require('./ws/codebreaker/HWInfoServer');
+const UIComponents = require('./ws/codebreaker/UIComponents');
 
 console.log('========================-- -- -');
 console.log('Hyttynen Server starting');
@@ -13,15 +13,13 @@ console.log('Hyttynen Server starting');
 // Create HTTP server
 const server = http.createServer(app);
 
-// List of web socket end points
-const webSocketEndPoints = new Array();
+// Start hyttynen websocket server
+HyttynenServer.HyttynenStart();
+// Start MQTT dispatcher
+HWInfoServer.startServer();
+UIComponents.startServer();
 
-// Initialize web sockets
-webSocketEndPoints.push(hyttynen.server());
-
-// Starting WebSocket server
-device.devices(server);
-
+// Start http server
 server.listen(5000, () => {
     console.log('Listening to port 5000');
 });

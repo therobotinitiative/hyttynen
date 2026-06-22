@@ -4,9 +4,7 @@ import App from './App.jsx';
 import { HyttynenProvider } from './context/HyttynenProvider.jsx';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
     <HyttynenProvider>
       <App />
     </HyttynenProvider>
-  </React.StrictMode>
 );
