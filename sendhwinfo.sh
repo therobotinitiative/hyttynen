@@ -3,7 +3,7 @@
 # --- CONFIGURATION ---
 MQTT_HOST="127.0.0.1"
 MQTT_PORT="1883"
-MQTT_TOPIC="hwinfo"
+MQTT_TOPIC="hyttynen"
 # Use hostname as a unique device identifier key in JSON
 HOSTNAME=$(hostname)
 

@@ -2,7 +2,7 @@ const HyttynenServer = require("./HyttynenServer");
 const mqtt = require('mqtt');
 
 const MQTT_URL=process.env.MQTT_URL || "mqtt://localhost:1883";
-const MQTT_TOPIC=process.env.MQTT_TOPIC || "hwinfo";
+const MQTT_TOPIC=process.env.MQTT_TOPIC || "hyttynen";
 
 const MESSAGE_TYPE = "hwinfo";
 
