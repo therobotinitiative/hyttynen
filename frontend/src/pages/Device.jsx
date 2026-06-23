@@ -23,10 +23,13 @@ const Device = () => {
     const { register } = useHyttynen();
 
     const dataListener = (message) => {
-      const hwData = JSON.parse(message);
-      if(hwData.type=="hwinfo") {
-        setData(hwData.data);
-        setLastUpdate(new Date());
+      if (message.data.device==deviceId) {
+        console.log('[Device::dataListener]: Received data for ', message.data.device);
+        
+        if(message.messageType=="hwinfo") {
+          setData(message.data);
+          setLastUpdate(new Date());
+        }
       }
     }
     register("hwinfo", dataListener);
