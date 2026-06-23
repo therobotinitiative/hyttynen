@@ -14,7 +14,7 @@ const MESSAGE_TYPE = "uidt";
 function reloadDeviceList(path) {
     const device_list = fs.readFileSync(path, 'utf8').split(',').map((device) => {
         if(device.endsWith('\n')) device = device.slice(0, -1);
-        return { "name": device, "url": device };
+        return { "name": device, "url": device.trim() };
     });
     const devicesMessage = {
         'messageType' : MESSAGE_TYPE,

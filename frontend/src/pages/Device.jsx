@@ -22,14 +22,21 @@ const Device = () => {
 
     const { register } = useHyttynen();
 
+    /**
+     * Message handler for "hwinfo" message type.
+     * @param {*} message 
+     */
     const dataListener = (message) => {
-      if (message.data.device==deviceId) {
-        console.log('[Device::dataListener]: Received data for ', message.data.device);
-        
-        if(message.messageType=="hwinfo") {
-          setData(message.data);
-          setLastUpdate(new Date());
-        }
+      const device = message.data.device.trim();
+      console.log(`[Device::dataListener] received data for device ${device}], message device: [${message.data.device}]`);
+      
+      if (device==deviceId) {
+        //console.log('[Device::dataListener]: Received data for ', device);
+        setData(message.data);
+        setLastUpdate(new Date());
+      }
+      else {
+        console.log(`[Device::dataListener] device data: [${device}], current page device id: [${deviceId}]`);
       }
     }
     register("hwinfo", dataListener);

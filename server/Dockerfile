@@ -6,4 +6,5 @@ COPY index.js .
 COPY devices.list .
 COPY ws/ ws/
 EXPOSE 5000
+EXPOSE 8088
 CMD ["node", "index.js"]
